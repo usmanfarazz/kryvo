@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kryvo Privacy Policy</title>
+<style>
+  :root { --bg:#ffffff; --fg:#1a2230; --muted:#5b6678; --accent:#2b64d6; --line:#e3e8f0; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0b0f17; --fg:#e7edf5; --muted:#93a1b5; --accent:#4f8cff; --line:#243044; }
+  }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  main { max-width:760px; margin:0 auto; padding:32px 16px 64px; }
+  h1 { font-size:28px; margin:0 0 4px; }
+  h2 { font-size:19px; margin:32px 0 8px; border-top:1px solid var(--line); padding-top:20px; }
+  p, li { color:var(--fg); }
+  .muted { color:var(--muted); }
+  .box { border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  a { color:var(--accent); }
+</style>
+</head>
+<body>
+<main>
+<h1>Kryvo — Privacy Policy</h1>
+<p class="muted">Developer: Faraz Labs · Last updated: 1 October 2026</p>
+
+<div class="box">
+<strong>In short:</strong> Kryvo has no internet permission. Everything you hide
+stays on your phone, encrypted. We do not collect, store, sell or share any of
+your data — we never see it.
+</div>
+
+<h2>1. What Kryvo is</h2>
+<p>Kryvo is a private vault for Android. It hides photos, videos, audio files,
+web images, passwords and notes on your phone, can lock other apps with a PIN,
+and can disguise itself as another app (for example a calculator).</p>
+
+<h2>2. Data we collect</h2>
+<p><strong>None.</strong> Kryvo does not have the Android INTERNET permission,
+so it cannot send anything to us or to anyone else. There are no accounts, no
+analytics, no advertising and no tracking of any kind.</p>
+
+<h2>3. Data stored on your phone</h2>
+<ul>
+  <li><strong>Hidden photos, videos, audio and web images</strong> are encrypted
+      with AES-256-GCM and kept in Kryvo's private storage on your phone.</li>
+  <li><strong>Passwords and private notes</strong> are encrypted with a key
+      derived from your master password (PBKDF2-HMAC-SHA256, 310,000
+      rounds). Your master password itself is never stored.</li>
+  <li><strong>Settings, PIN and fingerprint unlock</strong> data are kept in
+      Android Keystore–protected storage on your phone.</li>
+</ul>
+<p>Uninstalling Kryvo deletes all of this from your phone.</p>
+
+<h2>4. Permissions and why they are used</h2>
+<ul>
+  <li><strong>Photos, videos and audio (media access):</strong> to let you
+      choose files to hide, and to put them back in your gallery when you
+      unhide them.</li>
+  <li><strong>Camera (optional, off by default):</strong> only for "Intruder
+      selfie" — after wrong PIN attempts, a photo is taken and stored
+      encrypted inside your vault. It never leaves your phone. The torch of the
+      "Flashlight" disguise does not use this permission.</li>
+  <li><strong>Fingerprint / face (biometrics):</strong> to unlock Kryvo. Your
+      biometric data is handled by Android; Kryvo never receives it.</li>
+  <li><strong>Usage access and "Display over other apps" (optional):</strong>
+      only for App Lock — to notice when an app you chose to lock is opened and
+      to show the PIN screen over it. This information is used only on your
+      phone and is not stored or shared.</li>
+  <li><strong>Foreground service and notifications:</strong> keep App Lock
+      running while it is on, with a visible "App Lock is on" notification.</li>
+  <li><strong>Run at startup:</strong> turns App Lock back on after the phone
+      restarts.</li>
+  <li><strong>Google Play Billing:</strong> if you buy an extra app icon, the
+      payment is handled entirely by Google Play under
+      <a href="https://policies.google.com/privacy">Google's Privacy Policy</a>.
+      Kryvo only learns that the purchase was made.</li>
+</ul>
+
+<h2>5. Backups</h2>
+<p>Kryvo only creates a backup when you ask it to. The backup is one encrypted
+file that can be opened only with your master password. You choose where it is
+saved (for example Google Drive or your phone). Kryvo does not upload it
+anywhere itself.</p>
+
+<h2>6. Sharing and feedback</h2>
+<p>"Recommend to friend" and "Feedback" open another app on your phone (such as
+WhatsApp or your email app) with a ready-made message. Nothing is sent unless
+you send it from that app.</p>
+
+<h2>7. Children</h2>
+<p>Kryvo is not directed at children under 13 and does not knowingly collect
+any information from anyone.</p>
+
+<h2>8. Security</h2>
+<p>Kryvo uses strong, standard encryption and keeps your data offline. No
+method is perfect: please choose a strong master password, and keep your
+recovery key and backups safe. If you forget your master password and have no
+recovery key, your data cannot be recovered — not even by us.</p>
+
+<h2>9. Changes to this policy</h2>
+<p>If this policy changes, the new version will be published on this page with
+a new date.</p>
+
+<h2>10. Contact</h2>
+<p>Questions? Email <a href="mailto:usmanfaraz1818@gmail.com">usmanfaraz1818@gmail.com</a>
+or reach out on <a href="https://www.linkedin.com/in/usman-farazz">LinkedIn</a>.</p>
+</main>
+</body>
+</html>

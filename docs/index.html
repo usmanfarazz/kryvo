@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kryvo — Private Vault</title>
+<meta name="description" content="Kryvo is an offline, encrypted vault for photos, videos, audio, passwords and notes on Android — with disguise icons, app lock, intruder selfie and a fake PIN. Try the live demo.">
+<link rel="icon" href="img/logo.png">
+<style>
+  :root {
+    --bg: #0b0f17; --panel: #131a26; --panel2: #0f1520; --line: #243044;
+    --txt: #e7edf5; --muted: #93a1b5; --accent: #4f8cff; --ok: #2ecc71; --bad: #ff5c6c; --warn: #f5a623;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--txt);
+         font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--accent); }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+  header.nav { position: sticky; top: 0; z-index: 10; background: rgba(11,15,23,.85);
+               backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  header.nav .wrap { display: flex; align-items: center; gap: 12px; height: 60px; }
+  header.nav img { width: 34px; height: 34px; border-radius: 9px; }
+  header.nav b { font-size: 19px; }
+  header.nav nav { margin-left: auto; display: flex; gap: 18px; font-size: 15px; }
+  header.nav nav a { color: var(--muted); text-decoration: none; }
+  header.nav nav a:hover { color: var(--txt); }
+  .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; padding: 56px 0 30px; }
+  .hero h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.1; margin: 0 0 14px; }
+  .hero h1 span { color: var(--accent); }
+  .hero p.lead { color: var(--muted); font-size: 18px; margin: 0 0 22px; }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+  .badge { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 5px 12px; font-size: 13px; }
+  .btn { display: inline-block; background: var(--accent); color: #fff; text-decoration: none;
+         padding: 12px 20px; border-radius: 12px; font-weight: 700; border: 0; cursor: pointer; font-size: 15px; }
+  .btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--txt); margin-left: 8px; }
+  section { padding: 50px 0; }
+  section h2 { font-size: 30px; margin: 0 0 6px; }
+  section p.sub { color: var(--muted); margin: 0 0 26px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+  .card .ic { font-size: 26px; }
+  .card h3 { margin: 8px 0 4px; font-size: 17px; }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; }
+  .icons { display: flex; flex-wrap: wrap; gap: 14px; }
+  .icons figure { margin: 0; text-align: center; width: 84px; font-size: 12px; color: var(--muted); }
+  .icons img { width: 64px; height: 64px; display: block; margin: 0 auto 4px; }
+  footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; }
+  .demo-col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .hint { color: var(--muted); font-size: 13px; text-align: center; max-width: 330px; }
+  .hint code { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; color: var(--txt); }
+
+  /* ---------- the phone ---------- */
+  .phone { width: 320px; height: 640px; border-radius: 40px; padding: 12px; background: #000;
+           box-shadow: 0 0 0 2px #2a3446, 0 30px 80px rgba(0,0,0,.6); position: relative; }
+  .screen { width: 100%; height: 100%; border-radius: 30px; overflow: hidden; position: relative;
+            background: var(--bg); display: flex; flex-direction: column; font-size: 14px; user-select: none; }
+  .status { height: 26px; display: flex; justify-content: space-between; padding: 6px 18px 0; font-size: 11px; color: var(--muted); }
+  .bar { display: flex; align-items: center; gap: 8px; padding: 6px 12px 8px; }
+  .bar h4 { margin: 0; font-size: 17px; flex: 1; }
+  .ibtn { background: none; border: 0; color: var(--txt); font-size: 18px; cursor: pointer; padding: 4px 6px; border-radius: 8px; }
+  .ibtn:hover { background: var(--panel); }
+  .body { flex: 1; overflow-y: auto; padding: 0 12px 12px; }
+  .toast { position: absolute; left: 12px; right: 12px; bottom: 16px; background: #1f2937; color: #fff;
+           border-radius: 10px; padding: 9px 12px; font-size: 12px; opacity: 0; transition: opacity .25s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  /* calculator */
+  .calc { background: #000; height: 100%; display: flex; flex-direction: column; padding: 10px 14px 16px; }
+  .calc .disp { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end; color: #fff; padding: 0 4px 10px; }
+  .calc .expr { font-size: 44px; font-weight: 300; word-break: break-all; text-align: right; line-height: 1.1; }
+  .calc .res { font-size: 18px; color: #8e8e93; min-height: 24px; }
+  .calc .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .calc button { aspect-ratio: 1; border-radius: 50%; border: 0; font-size: 22px; color: #fff; background: #333; cursor: pointer; }
+  .calc button.fn { background: #a5a5a5; color: #000; }
+  .calc button.op { background: #ff9f0a; }
+  .calc button:active { filter: brightness(1.3); }
+  /* lock */
+  .lock { height: 100%; display: flex; flex-direction: column; align-items: center; padding: 30px 20px 10px; }
+  .lock img { width: 64px; height: 64px; border-radius: 16px; }
+  .lock h3 { margin: 10px 0 2px; font-size: 22px; }
+  .dots { display: flex; gap: 12px; margin: 16px 0 6px; height: 16px; }
+  .dots i { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--accent); }
+  .dots i.on { background: var(--accent); }
+  .err { color: var(--bad); font-size: 12px; min-height: 18px; text-align: center; }
+  .pad { display: grid; grid-template-columns: repeat(3, 62px); gap: 12px 20px; margin-top: 8px; }
+  .pad button { width: 62px; height: 62px; border-radius: 50%; border: 0; background: var(--panel); color: var(--txt); font-size: 22px; cursor: pointer; }
+  .pad button.ok { background: var(--accent); color: #fff; }
+  .link { background: none; border: 0; color: var(--muted); font-size: 12px; margin-top: 10px; cursor: pointer; }
+  /* home */
+  .banner { background: linear-gradient(135deg, var(--accent), #2b4c8a); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; color: #fff; }
+  .banner b { display: block; font-size: 15px; }
+  .banner span { font-size: 12px; opacity: .85; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px; cursor: pointer; text-align: left; color: var(--txt); }
+  .tile:hover { border-color: var(--accent); }
+  .tile .e { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; font-size: 17px; margin-bottom: 6px; }
+  .tile b { display: block; font-size: 13px; }
+  .tile small { color: var(--muted); font-size: 11px; }
+  .row { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 8px; }
+  .row .av { width: 34px; height: 34px; border-radius: 50%; background: var(--panel2); display: grid; place-items: center; color: var(--accent); font-weight: 700; flex: none; }
+  .row div { flex: 1; min-width: 0; }
+  .row b { display: block; font-size: 13px; }
+  .row small { color: var(--muted); font-size: 11px; }
+  .sw { width: 38px; height: 22px; border-radius: 11px; background: #374151; position: relative; cursor: pointer; flex: none; border: 0; }
+  .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .2s; }
+  .sw.on { background: var(--accent); }
+  .sw.on::after { left: 19px; }
+  .photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .photos div { aspect-ratio: 1; border-radius: 8px; position: relative; }
+  .photos div.fav::after { content: "★"; position: absolute; top: 2px; left: 5px; color: #eab308; font-size: 13px; }
+  .icgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .icgrid button { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px 4px; color: var(--txt); cursor: pointer; font-size: 11px; }
+  .icgrid button.sel { border: 2px solid var(--accent); }
+  .icgrid img { width: 46px; height: 46px; display: block; margin: 0 auto 2px; }
+  .sec { color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .4px; margin: 12px 2px 6px; }
+  .note { color: var(--muted); font-size: 11px; margin: 0 2px 8px; }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; padding-top: 30px; }
+    header.nav nav { display: none; }
+  }
+  @media (max-width: 360px) { .phone { transform: scale(.92); transform-origin: top center; } }
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="wrap">
+    <img src="img/logo.png" alt=""><b>Kryvo</b>
+    <nav><a href="#demo">Live demo</a><a href="#features">Features</a><a href="#privacy">Privacy</a><a href="https://github.com/usmanfarazz/kryvo">GitHub</a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero" id="demo">
+    <div>
+      <h1>Your private vault that <span>doesn't look like one</span>.</h1>
+      <p class="lead">Kryvo hides photos, videos, audio, passwords and notes on your Android phone —
+        encrypted, fully offline, and able to disguise itself as a calculator, clock, notes app,
+        game or flashlight.</p>
+      <div class="badges">
+        <span class="badge">🔒 AES-256 encryption</span>
+        <span class="badge">📴 No internet permission</span>
+        <span class="badge">🚫 No ads · no tracking</span>
+        <span class="badge">🌍 18 languages</span>
+      </div>
+      <a class="btn" href="#features">See all features</a>
+      <a class="btn ghost" href="privacy.html">Privacy policy</a>
+      <p class="sub" style="margin-top:22px">📱 Android app · coming soon to Google Play</p>
+    </div>
+    <div class="demo-col">
+      <div class="phone"><div class="screen" id="screen"></div></div>
+      <p class="hint">👆 This is a live demo — tap around! The app is disguised as a calculator:
+        type <code>1234</code> then <code>=</code> to reach the vault. PIN <code>1234</code> opens it,
+        fake PIN <code>0000</code> opens the decoy vault.</p>
+    </div>
+  </div>
+
+  <section id="features">
+    <h2>Everything a private vault needs</h2>
+    <p class="sub">Simple to use, serious about security.</p>
+    <div class="grid">
+      <div class="card"><div class="ic">📷</div><h3>Hide photos, videos & audio</h3><p>Moves them into the encrypted vault and removes the originals from the gallery. Folders, favourites, search and sort.</p></div>
+      <div class="card"><div class="ic">🧮</div><h3>Disguise the app</h3><p>A working Calculator, Clock, Notes, Game or Flashlight on your home screen. Only your secret code opens the vault.</p></div>
+      <div class="card"><div class="ic">🛡️</div><h3>App Lock</h3><p>Put a PIN or fingerprint on WhatsApp, Gallery or any app.</p></div>
+      <div class="card"><div class="ic">📸</div><h3>Intruder selfie</h3><p>Takes a photo of anyone who enters a wrong PIN, with a break-in log.</p></div>
+      <div class="card"><div class="ic">🎭</div><h3>Fake PIN</h3><p>Forced to open it? The fake PIN opens a separate, nearly empty vault.</p></div>
+      <div class="card"><div class="ic">🔑</div><h3>Passwords & notes</h3><p>Encrypted with your master password. Password generator and a health check for weak or reused passwords.</p></div>
+      <div class="card"><div class="ic">💾</div><h3>Full encrypted backup</h3><p>One file with everything, saved to Google Drive or your phone. Restore it on a new phone.</p></div>
+      <div class="card"><div class="ic">♻️</div><h3>Recycle Bin + recovery</h3><p>Deleted items go to the bin; even after "delete forever" they can be recovered for 30 days.</p></div>
+      <div class="card"><div class="ic">📳</div><h3>Shake / flip to lock</h3><p>Lock instantly by shaking the phone or putting it face-down.</p></div>
+      <div class="card"><div class="ic">📤</div><h3>Share to Kryvo</h3><p>Hide a photo straight from WhatsApp or the gallery with Share → Kryvo.</p></div>
+      <div class="card"><div class="ic">🎨</div><h3>15 themes · 18 languages</h3><p>Including Urdu and Arabic with right-to-left layout.</p></div>
+      <div class="card"><div class="ic">🚫</div><h3>Screenshot protection</h3><p>The vault can't be screenshotted and is hidden in the recent-apps list.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Pick your icon</h2>
+    <p class="sub">Kryvo colours, or a disguise that really works.</p>
+    <div class="icons">
+      <figure><img src="img/default.png" alt="">Classic blue</figure>
+      <figure><img src="img/dark.png" alt="">Midnight</figure>
+      <figure><img src="img/purple.png" alt="">Purple</figure>
+      <figure><img src="img/green.png" alt="">Emerald</figure>
+      <figure><img src="img/rose.png" alt="">Rose</figure>
+      <figure><img src="img/calc.png" alt="">Calculator</figure>
+      <figure><img src="img/notes.png" alt="">Notes</figure>
+      <figure><img src="img/clock.png" alt="">Clock</figure>
+      <figure><img src="img/game.png" alt="">Games</figure>
+      <figure><img src="img/torch.png" alt="">Flashlight</figure>
+    </div>
+  </section>
+
+  <section id="privacy">
+    <h2>Private by design</h2>
+    <p class="sub">Kryvo has no internet permission — it physically cannot send your data anywhere.</p>
+    <div class="grid">
+      <div class="card"><h3>Encryption</h3><p>AES-256-GCM. Passwords are protected by your master password (PBKDF2-HMAC-SHA256, 310,000 rounds). Media keys live in the Android Keystore.</p></div>
+      <div class="card"><h3>Zero data collected</h3><p>No account, no analytics, no ads. The Play Store data-safety label reads "No data collected".</p></div>
+      <div class="card"><h3>Your keys, your data</h3><p>Forgot the password and no recovery key? Nobody can open the vault — not even us. Set up a recovery key in Settings.</p></div>
+    </div>
+    <p style="margin-top:18px"><a href="privacy.html">Read the full privacy policy →</a></p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Faraz Labs · Kryvo</span>
+    <span><a href="privacy.html">Privacy</a> · <a href="mailto:usmanfaraz1818@gmail.com">Contact</a> · <a href="https://www.linkedin.com/in/usman-farazz">LinkedIn</a> · <a href="https://github.com/usmanfarazz/kryvo">GitHub</a></span>
+  </div>
+</footer>
+
+<script>
+/* ---------------------------------------------------------------------------
+   Live demo — a small simulation of the Kryvo app (no real data, nothing is
+   stored or sent anywhere).
+--------------------------------------------------------------------------- */
+const S = document.getElementById('screen');
+const st = {
+  view: 'calc', pin: '', fake: false, icon: 'calc', expr: '', res: '',
+  fails: [], locked: { WhatsApp: true, Gallery: false, Messages: false, Instagram: true },
+  favs: new Set([1, 4]), bin: 0,
+};
+const REAL = '1234', FAKE = '0000';
+const now = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const status = () => `<div class="status"><span>${now()}</span><span>📶 🔋</span></div>`;
+let toastTimer;
+function toast(msg) {
+  const t = S.querySelector('.toast'); if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+const go = (v) => { st.view = v; render(); };
+const lockApp = () => { st.pin = ''; st.fake = false; go(st.icon === 'calc' ? 'calc' : 'lock'); };
+
+/* calculator */
+function calcEval(e) {
+  const s = e.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+  if (!/^[\d.+\-*/ ]+$/.test(s) || /[+\-*/]$/.test(s)) return null;
+  try { const v = Function('"use strict";return (' + s + ')')(); return isFinite(v) ? +v.toFixed(10) : null; }
+  catch { return null; }
+}
+function calcKey(k) {
+  if (k === 'AC') { st.expr = ''; st.res = ''; }
+  else if (k === '⌫') st.expr = st.expr.slice(0, -1);
+  else if (k === '=') {
+    if (/^\d{4,8}$/.test(st.expr)) {
+      if (st.expr === REAL) { st.expr = ''; return go('lock'); }
+      if (st.expr === FAKE) { st.expr = ''; st.fake = true; return go('home'); }
+    }
+    const v = calcEval(st.expr); st.expr = v === null ? st.expr : String(v); st.res = v === null ? 'Error' : '';
+  } else st.expr += k;
+  if (k !== '=') { const v = /[+−×÷]/.test(st.expr) ? calcEval(st.expr) : null; st.res = v === null ? '' : String(v); }
+  render();
+}
+
+/* lock screen */
+function pinKey(k) {
+  if (k === '⌫') st.pin = st.pin.slice(0, -1);
+  else if (st.pin.length < 4) st.pin += k;
+  if (st.pin.length === 4) {
+    const p = st.pin; st.pin = '';
+    if (p === REAL) { st.fake = false; return go('home'); }
+    if (p === FAKE) { st.fake = true; return go('home'); }
+    st.fails.unshift(now()); render(); return toast('Wrong PIN — intruder photo taken 📸');
+  }
+  render();
+}
+
+const TILES = [
+  ['📷', '#3d8bff', 'Safe Photo', () => st.fake ? '0 photos' : '9 photos', 'photos'],
+  ['🎬', '#e53935', 'Safe Video', () => st.fake ? '0 videos' : '3 videos', 'photos'],
+  ['🔑', '#22c55e', 'Safe Password', () => st.fake ? '0 saved' : '4 saved', 'pw'],
+  ['📝', '#14b8a6', 'Private Notes', () => st.fake ? '0 notes' : '2 notes', 'notes'],
+  ['⭐', '#eab308', 'Favourites', () => st.fake ? '0 items' : st.favs.size + ' items', 'photos'],
+  ['🗑️', '#8b5cf6', 'Recycle Bin', () => st.bin + ' items', 'bin'],
+  ['📸', '#ef4444', 'Intruder Alert', () => st.fails.length + ' attempts', 'intruder', true],
+  ['🛡️', '#0ea5e9', 'App Lock', () => Object.values(st.locked).filter(Boolean).length + ' locked', 'applock', true],
+  ['🧮', '#f59e0b', 'Change Icon', () => st.icon === 'calc' ? 'Now: Calculator' : 'Calculator, Clock…', 'icons', true],
+];
+const COLORS = ['#f97316,#ef4444', '#22c55e,#0ea5e9', '#a855f7,#ec4899', '#eab308,#f97316', '#06b6d4,#3b82f6',
+                '#84cc16,#22c55e', '#f43f5e,#8b5cf6', '#14b8a6,#0ea5e9', '#f59e0b,#ef4444'];
+
+function bar(title, back = 'home') {
+  return `<div class="bar"><button class="ibtn" data-go="${back}">←</button><h4>${title}</h4></div>`;
+}
+
+function render() {
+  let h = '';
+  const v = st.view;
+  if (v === 'calc') {
+    const keys = ['AC', '±', '%', '÷', '7', '8', '9', '×', '4', '5', '6', '−', '1', '2', '3', '+', '⌫', '0', '.', '='];
+    h = `<div class="calc">${status().replace('status"', 'status" style="color:#666"')}
+      <div class="disp"><div class="expr">${st.expr || '0'}</div><div class="res">${st.res}</div></div>
+      <div class="keys">${keys.map(k => `<button class="${'AC±%'.includes(k) ? 'fn' : '÷×−+='.includes(k) ? 'op' : ''}" data-calc="${k}">${k}</button>`).join('')}</div></div>`;
+  } else if (v === 'lock') {
+    h = `${status()}<div class="lock"><img src="img/logo.png" alt=""><h3>Kryvo</h3>
+      <div style="color:var(--muted);font-size:13px">Enter your PIN</div>
+      <div class="dots">${[0, 1, 2, 3].map(i => `<i class="${i < st.pin.length ? 'on' : ''}"></i>`).join('')}</div>
+      <div class="err"></div>
+      <div class="pad">${['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', '✓'].map(k => `<button class="${k === '✓' ? 'ok' : ''}" data-pin="${k}">${k}</button>`).join('')}</div>
+      <button class="link" data-go="${st.icon === 'calc' ? 'calc' : 'lock'}">${st.icon === 'calc' ? '← back to calculator' : 'Forgot PIN?'}</button></div>`;
+  } else if (v === 'home') {
+    const tiles = TILES.filter(t => !(st.fake && t[5]));
+    h = `${status()}<div class="bar"><img src="img/logo.png" style="width:26px;height:26px;border-radius:7px"><h4>Kryvo${st.fake ? '' : ''}</h4>
+      <button class="ibtn" title="Lock" data-lock>🔒</button></div>
+      <div class="body"><div class="banner"><b>Your private vault</b><span>${st.fake ? '0' : '18'} items protected with AES-256</span></div>
+      <div class="tiles">${tiles.map(t => `<button class="tile" data-go="${t[4]}"><div class="e" style="background:${t[1]}26">${t[0]}</div><b>${t[2]}</b><small>${t[3]()}</small></button>`).join('')}</div>
+      ${st.fake ? '<p class="note" style="margin-top:10px">🎭 You opened the <b>decoy vault</b> with the fake PIN — the real one stays hidden.</p>' : ''}</div>`;
+  } else if (v === 'photos') {
+    const n = st.fake ? 0 : 9;
+    h = `${status()}${bar('Safe Photo')}<div class="body"><p class="note">Tap a photo to ⭐ it. Everything here is encrypted.</p>
+      <div class="photos">${Array.from({ length: n }, (_, i) => `<div data-fav="${i}" class="${st.favs.has(i) ? 'fav' : ''}" style="background:linear-gradient(135deg,${COLORS[i]})"></div>`).join('')}</div>
+      ${n === 0 ? '<p class="note">No photos here.</p>' : ''}</div>`;
+  } else if (v === 'pw') {
+    const list = st.fake ? [] : [['G', 'Google', 'me@gmail.com'], ['B', 'Bank', 'Account 1234'], ['F', 'Facebook', 'usman'], ['W', 'Wi-Fi', 'Home router']];
+    h = `${status()}${bar('Passwords')}<div class="body">
+      ${st.fake ? '' : '<div class="row" style="background:#f5a6231f"><span>⚠️</span><div><b>1 password needs attention</b><small>Weak password on Wi-Fi</small></div></div>'}
+      ${list.map(r => `<div class="row"><span class="av">${r[0]}</span><div><b>${r[1]}</b><small>${r[2]}</small></div><span style="color:var(--muted)">⋮</span></div>`).join('') || '<p class="note">No passwords saved.</p>'}</div>`;
+  } else if (v === 'notes') {
+    const list = st.fake ? [] : [['Gift ideas', 'Watch for Ali, books…'], ['Locker code', 'Stored safely here']];
+    h = `${status()}${bar('Private Notes')}<div class="body">${list.map(r => `<div class="row"><span>📝</span><div><b>${r[0]}</b><small>${r[1]}</small></div></div>`).join('') || '<p class="note">No notes yet.</p>'}</div>`;
+  } else if (v === 'bin') {
+    h = `${status()}${bar('Recycle Bin')}<div class="body"><p class="note">Deleted items stay here. "Delete permanently" keeps them recoverable for 30 days in Recover lost media.</p>${st.bin ? '' : '<p class="note">Recycle Bin is empty.</p>'}</div>`;
+  } else if (v === 'intruder') {
+    h = `${status()}${bar('Intruder alert')}<div class="body">
+      <div class="row"><span>📸</span><div><b>Intruder selfie</b><small>Photo after 2 wrong tries</small></div><button class="sw on"></button></div>
+      <div class="sec">BREAK-IN LOG</div>
+      ${st.fails.map(t => `<div class="row"><span class="av" style="background:linear-gradient(135deg,#334155,#0f172a)">🙂</span><div><b>Someone entered a wrong PIN</b><small>Today ${t}</small></div></div>`).join('') || '<p class="note">No break-in attempts. Lock the demo and type a wrong PIN to try it.</p>'}</div>`;
+  } else if (v === 'applock') {
+    h = `${status()}${bar('App Lock')}<div class="body"><p class="note">These apps ask for your App Lock PIN or fingerprint when opened.</p>
+      ${Object.keys(st.locked).map(a => `<div class="row"><span class="av">${a[0]}</span><div><b>${a}</b><small>${st.locked[a] ? 'Locked' : ''}</small></div><button class="sw ${st.locked[a] ? 'on' : ''}" data-app="${a}"></button></div>`).join('')}</div>`;
+  } else if (v === 'icons') {
+    const kry = [['default', 'Classic'], ['dark', 'Midnight'], ['purple', 'Purple'], ['green', 'Emerald'], ['rose', 'Rose']];
+    const dis = [['calc', 'Calculator'], ['notes', 'Notes'], ['clock', 'Clock'], ['game', 'Games'], ['torch', 'Flashlight']];
+    const g = l => `<div class="icgrid">${l.map(i => `<button class="${st.icon === i[0] ? 'sel' : ''}" data-icon="${i[0]}"><img src="img/${i[0]}.png" alt="">${i[1]}</button>`).join('')}</div>`;
+    h = `${status()}${bar('App icon & disguise')}<div class="body"><div class="sec">KRYVO ICONS</div>${g(kry)}
+      <div class="sec">DISGUISE ICONS</div><p class="note">A real working app on your home screen; your secret code opens the vault.</p>${g(dis)}
+      <p class="note" style="margin-top:8px">In this demo only the Calculator disguise is interactive.</p></div>`;
+  }
+  S.innerHTML = h + '<div class="toast"></div>';
+}
+
+S.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-calc],[data-pin],[data-go],[data-lock],[data-icon],[data-app],[data-fav]');
+  if (!b) return;
+  if (b.dataset.calc) return calcKey(b.dataset.calc);
+  if (b.dataset.pin) { if (b.dataset.pin !== '✓') pinKey(b.dataset.pin); return; }
+  if (b.hasAttribute('data-lock')) return lockApp();
+  if (b.dataset.go) return go(b.dataset.go);
+  if (b.dataset.app) { st.locked[b.dataset.app] = !st.locked[b.dataset.app]; render(); return; }
+  if (b.dataset.fav !== undefined) { const i = +b.dataset.fav; st.favs.has(i) ? st.favs.delete(i) : st.favs.add(i); render(); return toast(st.favs.has(i) ? 'Added to favourites ⭐' : 'Removed from favourites'); }
+  if (b.dataset.icon) {
+    st.icon = b.dataset.icon; render();
+    return toast(st.icon === 'calc' ? 'Disguised as Calculator — lock to see it' : 'Icon changed ✔');
+  }
+});
+render();
+</script>
+</body>
+</html>

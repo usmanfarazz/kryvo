@@ -1,0 +1,71 @@
+name: securevault
+description: "Kryvo — offline private vault for passwords, photos and videos, by Faraz Labs."
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Crypto: PBKDF2-HMAC-SHA256 + AES-256-GCM (pure Dart, no native crypto needed)
+  cryptography: ^2.8.1
+
+  # Uses Android's native (hardware-accelerated) AES-GCM / PBKDF2 for the
+  # same algorithms — much faster for big videos. Output is identical.
+  cryptography_flutter: ^2.3.4
+
+  # Encrypted vault blob is stored in Android Keystore-backed secure storage
+  flutter_secure_storage: ^9.2.2
+
+  # Fingerprint / Face unlock
+  local_auth: ^2.3.0
+
+  # Encrypted backup export / restore (native save/pick dialog)
+  file_picker: ^8.1.4
+
+  # Gallery access: list, import AND delete originals (true "hide"). Needs
+  # media read permissions in the manifest. 3.10.0+ uses Flutter's built-in
+  # Kotlin (no KGP warning).
+  photo_manager: ^3.12.0
+
+  # App-private directory to store the encrypted media files
+  path_provider: ^2.1.4
+
+  # Play hidden videos (from a temporary decrypted file)
+  video_player: ^2.9.2
+
+  # Simple state management
+  provider: ^6.1.2
+
+  cupertino_icons: ^1.0.8
+
+  # Opens the email app / a profile link for Feedback (no internet permission
+  # needed in Kryvo itself — the other app does the sending).
+  url_launcher: ^6.3.2
+
+  # Intruder selfie: silent front-camera photo after wrong unlock attempts
+  camera: ^0.12.1
+
+  # Shake / face-down to lock
+  sensors_plus: ^7.1.0
+
+  # App languages (incl. right-to-left Urdu / Arabic)
+  flutter_localizations:
+    sdk: flutter
+
+  # Paid icons (Google Play Billing). Payment happens in the Play Store app.
+  in_app_purchase: ^3.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/kryvo_logo.png
+    - assets/icons/
