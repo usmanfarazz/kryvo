@@ -52,3 +52,7 @@ app.*.map.json
 /android/key.properties
 *.jks
 *.keystore
+
+# Play upload key, its password and signed bundles — NEVER publish
+/kryvo-keys/
+*.aab
