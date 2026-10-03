@@ -13,6 +13,13 @@ that can <b>disguise itself</b> as a calculator, clock, notes app, game or flash
 </p>
 
 <p align="center">
+<img src="docs/img/shots/01-private-vault.png" width="200">
+<img src="docs/img/shots/03-hide-photos.png" width="200">
+<img src="docs/img/shots/04-app-lock.png" width="200">
+<img src="docs/img/shots/05-intruder-selfie.png" width="200">
+</p>
+
+<p align="center">
 <img src="https://img.shields.io/badge/platform-Android-3ddc84" alt="Android">
 <img src="https://img.shields.io/badge/built%20with-Flutter-02569B" alt="Flutter">
 <img src="https://img.shields.io/badge/encryption-AES--256--GCM-4f8cff" alt="AES-256">
@@ -24,8 +31,7 @@ that can <b>disguise itself</b> as a calculator, clock, notes app, game or flash
 ## ✨ Try it
 
 The [live demo](https://usmanfarazz.github.io/kryvo/) is a clickable simulation of the app in your
-browser: it starts disguised as a calculator — type `1234` then `=` to reach the vault, use PIN
-`1234` for the real vault or `0000` for the decoy vault.
+browser: enter PIN `1234` for the real vault or `0000` for the decoy vault.
 
 > 📱 Kryvo is an Android app and is coming soon to Google Play.
 

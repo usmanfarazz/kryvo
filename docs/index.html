@@ -5,11 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kryvo — Private Vault</title>
 <meta name="description" content="Kryvo is an offline, encrypted vault for photos, videos, audio, passwords and notes on Android — with disguise icons, app lock, intruder selfie and a fake PIN. Try the live demo.">
+<meta property="og:title" content="Kryvo — Private Vault">
+<meta property="og:description" content="Offline, AES-256 encrypted vault for photos, videos, passwords and notes. No ads, no tracking. Coming soon to Google Play.">
+<meta property="og:image" content="https://usmanfarazz.github.io/kryvo/img/og.png">
+<meta name="theme-color" content="#0b1020">
 <link rel="icon" href="img/logo.png">
 <style>
   :root {
-    --bg: #0b0f17; --panel: #131a26; --panel2: #0f1520; --line: #243044;
-    --txt: #e7edf5; --muted: #93a1b5; --accent: #4f8cff; --ok: #2ecc71; --bad: #ff5c6c; --warn: #f5a623;
+    --bg: #0b1020; --panel: #131a33; --panel2: #0e1530; --line: #222b4d;
+    --txt: #e8ecff; --muted: #9aa6d1; --accent: #6a5cff; --b: #22c7e6; --ok: #22c55e; --bad: #ff5c6c; --warn: #f5a623;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -17,7 +21,7 @@
          font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   a { color: var(--accent); }
   .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
-  header.nav { position: sticky; top: 0; z-index: 10; background: rgba(11,15,23,.85);
+  header.nav { position: sticky; top: 0; z-index: 10; background: rgba(11,16,32,.85);
                backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
   header.nav .wrap { display: flex; align-items: center; gap: 12px; height: 60px; }
   header.nav img { width: 34px; height: 34px; border-radius: 9px; }
@@ -26,19 +30,26 @@
   header.nav nav a { color: var(--muted); text-decoration: none; }
   header.nav nav a:hover { color: var(--txt); }
   .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; padding: 56px 0 30px; }
-  .hero h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.1; margin: 0 0 14px; }
-  .hero h1 span { color: var(--accent); }
+  .hero h1 { font-size: clamp(34px, 5vw, 56px); line-height: 1.08; margin: 0 0 16px; font-weight: 900; letter-spacing: -.02em; }
+  .hero h1 span { background: linear-gradient(90deg, var(--accent), var(--b)); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .hero p.lead { color: var(--muted); font-size: 18px; margin: 0 0 22px; }
   .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
   .badge { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 5px 12px; font-size: 13px; }
-  .btn { display: inline-block; background: var(--accent); color: #fff; text-decoration: none;
+  .btns { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn { display: inline-block; background: linear-gradient(90deg, var(--accent), var(--b)); color: #fff; text-decoration: none;
          padding: 12px 20px; border-radius: 12px; font-weight: 700; border: 0; cursor: pointer; font-size: 15px; }
-  .btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--txt); margin-left: 8px; }
-  section { padding: 50px 0; }
-  section h2 { font-size: 30px; margin: 0 0 6px; }
-  section p.sub { color: var(--muted); margin: 0 0 26px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+  .btn.ghost { background: var(--panel); border: 1px solid var(--line); color: var(--txt); }
+  .btn.off { background: var(--panel); border: 1px solid var(--line); color: var(--txt); opacity: .6; cursor: default; }
+  .stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 34px; padding: 26px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 30px 0; }
+  .stats div { text-align: center; color: var(--muted); font-size: 14px; }
+  .stats b { display: block; font-size: 26px; background: linear-gradient(90deg, var(--accent), var(--b)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .shots { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; scroll-snap-type: x mandatory; }
+  .shots img { height: 480px; width: auto; border-radius: 22px; border: 1px solid var(--line); scroll-snap-align: start; flex: none; }
+  section { padding: 46px 0; }
+  section h2 { font-size: clamp(26px, 3.5vw, 38px); margin: 0 0 8px; letter-spacing: -.01em; }
+  section p.sub { color: var(--muted); margin: 0 0 28px; max-width: 640px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; }
   .card .ic { font-size: 26px; }
   .card h3 { margin: 8px 0 4px; font-size: 17px; }
   .card p { margin: 0; color: var(--muted); font-size: 14px; }
@@ -52,8 +63,10 @@
   .hint code { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; color: var(--txt); }
 
   /* ---------- the phone ---------- */
-  .phone { width: 320px; height: 640px; border-radius: 40px; padding: 12px; background: #000;
-           box-shadow: 0 0 0 2px #2a3446, 0 30px 80px rgba(0,0,0,.6); position: relative; }
+  .phone { width: 330px; height: 660px; border-radius: 46px; padding: 10px; background: #000; border: 0;
+           box-shadow: 0 0 0 2px #2a3566, 0 30px 80px rgba(106,92,255,.35); position: relative; }
+  .phone::before { content: ""; position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 80px; height: 20px;
+                   background: #0a0e1c; border-radius: 14px; z-index: 3; }
   .screen { width: 100%; height: 100%; border-radius: 30px; overflow: hidden; position: relative;
             background: var(--bg); display: flex; flex-direction: column; font-size: 14px; user-select: none; }
   .status { height: 26px; display: flex; justify-content: space-between; padding: 6px 18px 0; font-size: 11px; color: var(--muted); }
@@ -127,34 +140,52 @@
 <header class="nav">
   <div class="wrap">
     <img src="img/logo.png" alt=""><b>Kryvo</b>
-    <nav><a href="#demo">Live demo</a><a href="#features">Features</a><a href="#privacy">Privacy</a><a href="https://github.com/usmanfarazz/kryvo">GitHub</a></nav>
+    <nav><a href="#demo">Live demo</a><a href="#features">Features</a><a href="#screens">Screenshots</a><a href="#privacy">Privacy</a><a href="https://github.com/usmanfarazz/kryvo">GitHub</a></nav>
   </div>
 </header>
 
 <main class="wrap">
   <div class="hero" id="demo">
     <div>
-      <h1>Your private vault that <span>doesn't look like one</span>.</h1>
+      <h1>Your private vault, <span>locked tight and fully offline.</span></h1>
       <p class="lead">Kryvo hides photos, videos, audio, passwords and notes on your Android phone —
-        encrypted, fully offline, and able to disguise itself as a calculator, clock, notes app,
-        game or flashlight.</p>
+        AES-256 encrypted, no internet permission, with app lock, intruder selfie and a fake PIN.</p>
       <div class="badges">
         <span class="badge">🔒 AES-256 encryption</span>
         <span class="badge">📴 No internet permission</span>
         <span class="badge">🚫 No ads · no tracking</span>
         <span class="badge">🌍 18 languages</span>
       </div>
-      <a class="btn" href="#features">See all features</a>
-      <a class="btn ghost" href="privacy.html">Privacy policy</a>
-      <p class="sub" style="margin-top:22px">📱 Android app · coming soon to Google Play</p>
+      <div class="btns">
+        <a class="btn" href="#features">See all features →</a>
+        <a class="btn ghost" href="privacy.html">Privacy policy</a>
+        <span class="btn off" title="Coming soon">Google Play — coming soon</span>
+      </div>
     </div>
     <div class="demo-col">
       <div class="phone"><div class="screen" id="screen"></div></div>
-      <p class="hint">👆 This is a live demo — tap around! The app is disguised as a calculator:
-        type <code>1234</code> then <code>=</code> to reach the vault. PIN <code>1234</code> opens it,
-        fake PIN <code>0000</code> opens the decoy vault.</p>
+      <p class="hint">👆 Live demo — tap around! Enter PIN <code>1234</code> to open the vault.
+        Fake PIN <code>0000</code> opens the decoy vault. Try a wrong PIN to see the intruder log.</p>
     </div>
   </div>
+
+  <div class="stats">
+    <div><b>AES-256</b>encryption</div><div><b>0</b>ads &amp; trackers</div><div><b>18</b>languages</div><div><b>Free</b>to start</div>
+  </div>
+
+  <section id="screens">
+    <h2>Screenshots</h2>
+    <p class="sub">Real screens from the Android app.</p>
+    <div class="shots">
+      <img src="img/shots/01-private-vault.png" alt="Private vault" loading="lazy">
+      <img src="img/shots/03-hide-photos.png" alt="Hide photos" loading="lazy">
+      <img src="img/shots/04-app-lock.png" alt="App lock" loading="lazy">
+      <img src="img/shots/05-intruder-selfie.png" alt="Intruder selfie" loading="lazy">
+      <img src="img/shots/06-change-icon.png" alt="Change icon" loading="lazy">
+      <img src="img/shots/07-passwords.png" alt="Passwords" loading="lazy">
+      <img src="img/shots/08-offline-no-ads.png" alt="Offline, no ads" loading="lazy">
+    </div>
+  </section>
 
   <section id="features">
     <h2>Everything a private vault needs</h2>
@@ -218,7 +249,7 @@
 --------------------------------------------------------------------------- */
 const S = document.getElementById('screen');
 const st = {
-  view: 'calc', pin: '', fake: false, icon: 'calc', expr: '', res: '',
+  view: 'lock', pin: '', fake: false, icon: 'default', expr: '', res: '',
   fails: [], locked: { WhatsApp: true, Gallery: false, Messages: false, Instagram: true },
   favs: new Set([1, 4]), bin: 0,
 };
