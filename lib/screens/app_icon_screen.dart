@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:provider/provider.dart';
 
 import '../services/disguise_service.dart';
-import '../services/purchase_service.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
@@ -12,8 +10,7 @@ import '../widgets/common.dart';
 /// Notes, Clock, Games, Flashlight) that opens as a real working app and
 /// only reveals the vault after the secret code is entered in it.
 ///
-/// Some icons are paid (see PurchaseService): they show a lock and their
-/// price, and open the Google Play payment sheet when tapped.
+/// Every icon is free.
 class AppIconScreen extends StatefulWidget {
   const AppIconScreen({super.key});
 
@@ -22,54 +19,13 @@ class AppIconScreen extends StatefulWidget {
 }
 
 class _AppIconScreenState extends State<AppIconScreen> {
-  Map<String, ProductDetails> _products = {};
-  bool _storeReady = false;
-  String? _shownMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadProducts();
-  }
-
-  Future<void> _loadProducts() async {
-    final ok = await PurchaseService.available();
-    final p = ok ? await PurchaseService.products() : <String, ProductDetails>{};
-    if (!mounted) return;
-    setState(() {
-      _storeReady = ok && p.isNotEmpty;
-      _products = p;
-    });
-  }
-
-  String? _price(String productId) => _products[productId]?.price;
-
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
-    // Show a purchase problem (cancelled / failed / pending) once.
-    final msg = app.purchaseMessage;
-    if (msg != null && msg != _shownMessage) {
-      _shownMessage = msg;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) snack(context, msg);
-        app.purchaseMessage = null;
-      });
-    }
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('App icon & disguise'),
-        actions: [
-          IconButton(
-            tooltip: 'Restore purchases',
-            icon: const Icon(Icons.restore),
-            onPressed: _restore,
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('App icon & disguise')),
       body: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(child: _unlockAllCard()),
           _header('KRYVO ICONS', null),
           _grid(app, [
             for (final k in DisguiseService.kryvoIcons) (k.$1, k.$2)
@@ -113,174 +69,6 @@ class _AppIconScreenState extends State<AppIconScreen> {
     );
   }
 
-  // ---- Paid icons -------------------------------------------------------------
-
-  bool get _allOwned =>
-      PurchaseService.owned.contains(PurchaseService.allIconsProduct) ||
-      PurchaseService.productFor.keys.every(PurchaseService.owns);
-
-  Widget _unlockAllCard() {
-    if (_allOwned) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-        child: Card(
-          child: ListTile(
-            leading: Icon(Icons.verified, color: SV.ok),
-            title: const Text('All icons unlocked'),
-            subtitle: Text('Thank you for supporting Kryvo!',
-                style: TextStyle(color: SV.muted)),
-          ),
-        ),
-      );
-    }
-    final price = _price(PurchaseService.allIconsProduct);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.workspace_premium, color: SV.warn, size: 30),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Unlock all icons',
-                            style: TextStyle(
-                                color: SV.txt,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700)),
-                        Text(
-                            'Purple, Rose, Emerald, Calculator, Notes and '
-                            'Games — one payment, yours forever.',
-                            style: TextStyle(color: SV.muted, fontSize: 12)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () => _buy(PurchaseService.allIconsProduct),
-                icon: const Icon(Icons.lock_open),
-                label: Text(price == null ? 'Unlock all' : 'Unlock all · $price'),
-              ),
-              if (!PurchaseService.enforce)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                      'Test version: all icons are free until the Play Store '
-                      'launch.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: SV.muted, fontSize: 11)),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _buy(String productId) async {
-    final product = _products[productId];
-    if (!_storeReady || product == null) {
-      await showDialog<void>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          backgroundColor: SV.panel,
-          icon: Icon(Icons.storefront, color: SV.accent, size: 36),
-          title: const Text('Coming soon'),
-          content: const Text(
-              'Buying icons will be available when Kryvo is installed from '
-              'the Google Play Store. Payment is made through Google Play.'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(ctx), child: const Text('OK')),
-          ],
-        ),
-      );
-      return;
-    }
-    try {
-      await PurchaseService.buy(product);
-    } catch (e) {
-      if (mounted) snack(context, 'Could not start the purchase');
-    }
-  }
-
-  Future<void> _restore() async {
-    if (!await PurchaseService.available()) {
-      if (mounted) snack(context, 'Google Play is not available on this phone');
-      return;
-    }
-    await PurchaseService.restore();
-    if (mounted) snack(context, 'Checking your purchases…');
-  }
-
-  /// Sheet for a paid icon the user doesn't own yet.
-  Future<void> _offer(String id, String name) async {
-    final product = PurchaseService.productFor[id]!;
-    final price = _price(product);
-    final allPrice = _price(PurchaseService.allIconsProduct);
-    final choice = await showModalBottomSheet<String>(
-      context: context,
-      backgroundColor: SV.panel,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Image.asset('assets/icons/$id.png', height: 84),
-              const SizedBox(height: 10),
-              Text('"$name" is a paid icon',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: SV.txt,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700)),
-              const SizedBox(height: 4),
-              Text('Buy it once — it stays unlocked, even offline.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: SV.muted)),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(ctx, product),
-                child: Text(price == null ? 'Buy $name' : 'Buy $name · $price'),
-              ),
-              const SizedBox(height: 8),
-              OutlinedButton(
-                onPressed: () =>
-                    Navigator.pop(ctx, PurchaseService.allIconsProduct),
-                child: Text(allPrice == null
-                    ? 'Unlock all icons'
-                    : 'Unlock all icons · $allPrice'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, 'restore'),
-                child: const Text('Restore purchases'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    if (!mounted || choice == null) return;
-    if (choice == 'restore') {
-      await _restore();
-    } else {
-      await _buy(choice);
-    }
-  }
-
   // ---- Layout -------------------------------------------------------------------
 
   Widget _header(String title, String? note) => SliverToBoxAdapter(
@@ -320,13 +108,8 @@ class _AppIconScreenState extends State<AppIconScreen> {
 
   Widget _tile(AppState app, String id, String name) {
     final on = id == app.appIcon;
-    final paid = PurchaseService.isPaid(id);
-    final owned = PurchaseService.owns(id);
-    final price = paid ? _price(PurchaseService.productFor[id]!) : null;
     return GestureDetector(
       onTap: () => _pick(app, id),
-      // Long-press shows the buy sheet (also while everything is free).
-      onLongPress: paid && !owned ? () => _offer(id, name) : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
@@ -341,33 +124,7 @@ class _AppIconScreenState extends State<AppIconScreen> {
         child: Column(
           children: [
             Expanded(
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: Opacity(
-                      opacity: paid && !owned && PurchaseService.enforce
-                          ? 0.55
-                          : 1,
-                      child: Image.asset('assets/icons/$id.png',
-                          fit: BoxFit.contain),
-                    ),
-                  ),
-                  if (paid && !owned)
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: SV.warn,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.lock,
-                            size: 14, color: Colors.white),
-                      ),
-                    ),
-                ],
-              ),
+              child: Image.asset('assets/icons/$id.png', fit: BoxFit.contain),
             ),
             const SizedBox(height: 6),
             Row(
@@ -389,16 +146,9 @@ class _AppIconScreenState extends State<AppIconScreen> {
               ],
             ),
             const SizedBox(height: 2),
-            Text(
-                !paid
-                    ? 'Free'
-                    : owned
-                        ? 'Unlocked'
-                        : (price ?? 'PRO'),
+            Text('Free',
                 style: TextStyle(
-                    color: !paid || owned ? SV.ok : SV.warn,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700)),
+                    color: SV.ok, fontSize: 11, fontWeight: FontWeight.w700)),
           ],
         ),
       ),
@@ -438,10 +188,6 @@ class _AppIconScreenState extends State<AppIconScreen> {
   Future<void> _pick(AppState app, String id) async {
     if (id == app.appIcon) return;
     final name = DisguiseService.nameOf(id);
-    if (!PurchaseService.canUse(id)) {
-      await _offer(id, name);
-      return;
-    }
     final disguise = DisguiseService.isDisguise(id);
     if (disguise && !await DisguiseService.hasCode()) {
       if (!mounted) return;

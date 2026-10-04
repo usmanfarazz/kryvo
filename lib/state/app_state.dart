@@ -20,7 +20,6 @@ import '../services/full_backup_service.dart';
 import '../services/intruder_service.dart';
 import '../services/media_service.dart';
 import '../services/pin_service.dart';
-import '../services/purchase_service.dart';
 import '../services/quick_unlock_service.dart';
 import '../services/recovery_service.dart';
 import '../services/secure_store.dart';
@@ -206,11 +205,6 @@ class AppState extends ChangeNotifier {
     pinMode = await PinService.isPinMode();
     pinHint = await PinService.hint();
     appIcon = await DisguiseService.currentIcon();
-    await PurchaseService.init();
-    PurchaseService.onUpdate = (error) {
-      purchaseMessage = error;
-      notifyListeners();
-    };
     intruderEnabled = await IntruderService.isEnabled();
     fakePinSet = await DecoyService.isSet();
     _folderLocks = await FolderLockService.load();
@@ -381,9 +375,6 @@ class AppState extends ChangeNotifier {
   }
 
   // ---- App icon / disguise -----------------------------------------------------
-
-  /// Last purchase problem to show (cancelled, failed, pending), if any.
-  String? purchaseMessage;
 
   /// Current launcher icon id (see DisguiseService).
   String appIcon = 'default';

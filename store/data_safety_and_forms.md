@@ -21,8 +21,8 @@ nothing, because it has no internet permission.
 Result on the store page: **"No data collected · No data shared with third
 parties"**.
 
-> Note: Google Play Billing (paid icons) is handled by Google Play itself and
-> does not count as data collected by Kryvo.
+> Note: Kryvo is completely free — no in-app purchases, so choose
+> "No" for "Contains in-app purchases" in the store listing.
 
 ---
 
@@ -106,5 +106,3 @@ the store.
 - [x] Host the privacy policy — https://usmanfarazz.github.io/kryvo/privacy.html
 - [ ] Fill in the forms above
 - [ ] Upload to **Internal testing** first, then Closed testing
-- [ ] Create the paid icon products, then set `enforce = true` in
-      `lib/services/purchase_service.dart`

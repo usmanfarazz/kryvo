@@ -76,8 +76,7 @@ browser: enter PIN `1234` for the real vault or `0000` for the decoy vault.
   AES-GCM / PBKDF2 on Android).
 - Storage via [`flutter_secure_storage`](https://pub.dev/packages/flutter_secure_storage)
   (Android Keystore) and app-private files.
-- Paid icons through Google Play Billing (`in_app_purchase`); the INTERNET permission the billing
-  library adds is removed in the manifest.
+- Fully free: every icon and feature is unlocked, no in-app purchases, no ads.
 
 ```
 lib/
